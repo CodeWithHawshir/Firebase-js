@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+
+    <link rel="stylesheet" href="../style.css">
+    <title>Firebase login</title>
+</head>
+
+<body>
+    <div class="box">
+        <div class="form">
+            <h2>SIGN UP</h2>
+
+            <form>
+
+                <div class="inputbox">
+                    <input type="email" value="" id="email" required>
+                    <span>E-mail</span>
+                </div>
+
+                <div class="inputbox">
+                    <input type="password" value="" id="phone" required>
+                    <span>password</span>
+
+                </div>
+                <button id="signUpBtn">SignUp</button>
+
+                <a href="../index.html">Already have an account</a>
+
+            </form>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+    <script type="module" src="../firebase.mjs"></script>
+    <script type="module">
+
+        import { auth, createUserWithEmailAndPassword, onAuthStateChanged } from '../firebase.mjs'
+
+        let formField = document.querySelectorAll("form input");
+        const [userEmail, userPassword] = formField;
+        let signUpBtn = document.getElementById('signUpBtn');
+
+        const signup = (event) => {
+            event.preventDefault();
+            signUpBtn.disabled = true;
+            signUpBtn.innerText = 'Loading...';
+            createUserWithEmailAndPassword(auth, userEmail.value, userPassword.value)
+                .then((userCredential) => {
+                    signUpBtn.disabled = false;
+                    signUpBtn.innerText = 'SignUp';
+
+                    // Signed up 
+                    const user = userCredential.user;
+
+                    onAuthStateChanged(auth, (user) => {
+                        if (user) {
+                            if (window.location.pathname !== "/dashboard/dashboard.html") {
+                                window.location.href = "../dashboard/dashboard.html";
+                            }
+                        }
+                    });
+
+
+
+
+                  
+
+
+                    Toastify({
+
+                        text: `signUp Successfully...`,
+
+                        duration: 3000
+
+                    }).showToast();
+
+                })
+                .catch((error) => {
+                    const errorCode = error.code;
+                    const errorMessage = error.message;
+                    signUpBtn.disabled = false;
+                    signUpBtn.innerText = 'SignUp';
+
+                    Toastify({
+
+                        text: `${errorMessage}`,
+
+                        duration: 3000
+
+                    }).showToast();
+                });
+        };
+
+        signUpBtn.addEventListener('click', signup);
+
+      
+
+    </script>
+</body>
+
+</html>

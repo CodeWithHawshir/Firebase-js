@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <title>Firebase login</title>
+</head>
+
+<body>
+    <div class="box">
+        <div class="form">
+            <h2>LOGIN FORM</h2>
+
+            <form>
+
+
+                <div class="inputbox">
+                    <input type="email" value="" id="email" required>
+                    <span>Email</span>
+                </div>
+
+                <div class="inputbox">
+                    <input type="password" value="" id="phone" required>
+                    <span>password</span>
+
+                </div>
+                <button id="loginBtn">Login</button>
+                <button id="fpBtn">Forgot Password</button>
+                <a href="./signup/signup.html">Create an account</a>
+
+            </form>
+        </div>
+    </div>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script type="module" src="./firebase.mjs"></script>
+    <script type="module">
+        import { auth, signInWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail , sendEmailVerification} from './firebase.mjs';
+
+        let formField = document.querySelectorAll("form input");
+        const [loginEmail, loginpassword] = formField;
+
+        let loginBtn = document.getElementById('loginBtn');
+        let fpass = document.getElementById('fpBtn');
+
+        const login = () => {
+            event.preventDefault();
+
+            signInWithEmailAndPassword(auth, loginEmail.value, loginpassword.value)
+                .then((userCredential) => {
+                    // Signed in 
+                    const user = userCredential.user;
+
+                    console.log( user.auth.currentUser.emailVerified);
+                   
+                    if (
+                        user.auth.currentUser.emailVerified
+                    ) {
+
+
+                        onAuthStateChanged(auth, (user) => {
+                            if (user) {
+                                if (window.location.pathname !== "/dashboard/dashboard.html") {
+                                    window.location.href = "../dashboard/dashboard.html";
+                                }
+                            }
+                        });
+
+                    } else {
+                        sendEmailVerification(auth.currentUser)
+                            .then(() => {
+                                Toastify({
+
+                                    text: `Please Check Your Email & Verify`,
+
+                                    duration: 3000
+
+                                }).showToast();
+                                // ...
+                                console.log(user);
+
+
+                            })
+                            .catch((error) => {
+                                const errorCode = error.code;
+                                const errorMessage = error.message;
+                                Toastify({
+
+                                    text: errorMessage,
+
+                                    duration: 3000
+
+                                }).showToast();
+                            });
+
+                    }
+
+                    Toastify({
+
+                        text: `Login Successfully...`,
+
+                        duration: 3000
+
+                    }).showToast();
+                    // ...
+                    // console.log(user);
+
+                })
+                .catch((error) => {
+                    const errorCode = error.code;
+                    const errorMessage = error.message;
+
+                    Toastify({
+
+                        text: `${errorMessage}`,
+
+                        duration: 3000
+
+                    }).showToast();
+                });
+        };
+
+        loginBtn.addEventListener('click', login);
+
+        const fgp = () => {
+            event.preventDefault();
+            sendPasswordResetEmail(auth, loginEmail.value)
+                .then(() => {
+                    Toastify({
+
+                        text: `Password sent check email`,
+
+                        duration: 3000
+
+                    }).showToast();
+                    // ...
+                    console.log(user);
+
+
+                })
+                .catch((error) => {
+                    const errorCode = error.code;
+                    const errorMessage = error.message;
+                    Toastify({
+
+                        text: errorMessage,
+
+                        duration: 3000
+
+                    }).showToast();
+                });
+        }
+        fpass.addEventListener('click', fgp) 
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+
+    <title>Doc</title>
+</head>
+
+<body>
+    <div class="stuForm">
+        <label for="stuName"></label>
+        <input type="text" placeholder="Student Name" id="stuName">
+        <label for="lastName"></label>
+        <input type="text" placeholder="Last Name" id="lastName">
+        <label for="CName"></label>
+        <input type="text" placeholder="Course Name" id="CName">
+        <label for="email"></label>
+        <input type="email" placeholder="Enter Email" id="email">
+        <button id="btn">Add</button>
+    </div>
+    <br>
+    <table class="task-table">
+        <thead>
+            <tr>
+                <th>Student Name:</th>
+                <th>Last Name:</th>
+                <th>Course Name:</th>
+                <th>Email:</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- task will be add here -->
+        </tbody>
+    </table>
+    <br>
+    <button class="btn" id="Logout">Logout</button>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script type="module" src="../firebase.mjs"></script>
+    <script type="module">
+        import { auth, signOut as firebaseSignOut, onAuthStateChanged } from '../firebase.mjs'; // Ensure paths are correct
+        import { dBase, collection, addDoc } from "../firebase.mjs";
+    
+        console.log(dBase);
+    
+        // Handle logout
+        const logoutButton = document.getElementById('Logout');
+        if (logoutButton) {
+            logoutButton.addEventListener('click', () => {
+                firebaseSignOut(auth).then(() => {
+                    Toastify({
+                        text: "Logout Successfully...",
+                        duration: 3000
+                    }).showToast();
+                }).catch((error) => {
+                    Toastify({
+                        text: error.message, // Show error message
+                        duration: 3000
+                    }).showToast();
+                });
+            });
+        } else {
+            console.error("Logout button not found.");
+        }
+    
+        // Check authentication state
+        onAuthStateChanged(auth, (user) => {
+            if (!user && window.location.pathname !== "/index.html") {
+                window.location.href = "/index.html"; // Redirect to login page
+            }
+        });
+    
+        // Additional functionality for form handling and table insertion
+        const fName = document.getElementById("stuName");
+        const lName = document.getElementById("lastName");
+        const faName = document.getElementById("CName");
+        const email = document.getElementById("email");
+        const button = document.getElementById("btn");
+    
+        if (button) {
+            button.addEventListener("click", async function () {
+                await addUser();
+            });
+        } else {
+            console.error("Submission button not found.");
+        }
+    
+        // Function to add a user to the database and update the table
+        async function addUser() {
+            if (fName.value && lName.value && faName.value && email.value) {
+                try {
+                    const docRef = await addDoc(collection(dBase, "Users"), {
+                        first: fName.value,
+                        last: lName.value,
+                        father: faName.value,
+                        email: email.value
+                    });
+                    console.log("Document written with ID:", docRef.id);
+    
+                    appendRow(fName.value, lName.value, faName.value, email.value);
+                    clearInputs();
+    
+                    showToast("User added successfully", "success");
+    
+                } catch (e) {
+                    console.error("Error adding document:", e);
+                    showToast("Error adding user", "error");
+                }
+            } else {
+                showToast("Please fill all fields", "error");
+            }
+        }
+    
+        // Function to append a new row to the table
+        function appendRow(firstName, lastName, fatherName, email) {
+            const tableBody = document.querySelector(".task-table tbody");
+    
+            const row = document.createElement("tr");
+    
+            const fNameCell = document.createElement("td");
+            fNameCell.textContent = firstName;
+    
+            const lNameCell = document.createElement("td");
+            lNameCell.textContent = lastName;
+    
+            const faNameCell = document.createElement("td");
+            faNameCell.textContent = fatherName;
+    
+            const emailCell = document.createElement("td");
+            emailCell.textContent = email;
+    
+            row.appendChild(fNameCell);
+            row.appendChild(lNameCell);
+            row.appendChild(faNameCell);
+            row.appendChild(emailCell);
+    
+            tableBody.appendChild(row);
+        }
+    
+        // Function to clear input fields
+        function clearInputs() {
+            fName.value = '';
+            lName.value = '';
+            faName.value = '';
+            email.value = '';
+        }
+    
+        // Function to show toast notifications
+        function showToast(message, type) {
+            Toastify({
+                text: message,
+                duration: 3000,
+                style: {
+                    background: type === "success" ? "green" : "red",
+                }
+            }).showToast();
+        }
+    </script>
+    
+
+
+</body>
+
+</html>
