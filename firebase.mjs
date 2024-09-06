@@ -1,7 +1,7 @@
   // Import the functions you need from the SDKs you need
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
   import { getAuth,createUserWithEmailAndPassword, signInWithEmailAndPassword,onAuthStateChanged,signOut,sendPasswordResetEmail, sendEmailVerification  } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
-  import { getFirestore,collection, addDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+  import { getFirestore,collection, deleteDoc, addDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
   // TODO: Add SDKs for Firebase products that you want to use
   // https://firebase.google.com/docs/web/setup#available-libraries
@@ -23,4 +23,4 @@
 
   const dBase = getFirestore(app)
 
-  export {collection, addDoc,dBase, auth,createUserWithEmailAndPassword, signInWithEmailAndPassword,onAuthStateChanged,signOut,sendPasswordResetEmail, sendEmailVerification  }
+  export {collection, addDoc, deleteDoc,dBase, auth,createUserWithEmailAndPassword, signInWithEmailAndPassword,onAuthStateChanged,signOut,sendPasswordResetEmail, sendEmailVerification  }
